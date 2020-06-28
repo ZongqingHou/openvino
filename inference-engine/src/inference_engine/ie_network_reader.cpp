@@ -244,6 +244,7 @@ CNNNetwork details::ReadNetwork(const std::string& model, const std::string& bin
             return reader->read(modelStream, exts);
         }
     }
+    THROW_IE_EXCEPTION << "Unknown model format! Cannot find reader for the model and read it. Please check that reader library exists in your PATH.";
 }
 
 }  // namespace InferenceEngine
