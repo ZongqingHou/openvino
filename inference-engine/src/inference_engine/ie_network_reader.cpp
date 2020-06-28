@@ -209,4 +209,41 @@ CNNNetwork details::ReadNetwork(const std::string& model, const Blob::CPtr& weig
     THROW_IE_EXCEPTION << "Unknown model format! Cannot find reader for the model and read it. Please check that reader library exists in your PATH.";
 }
 
+CNNNetwork details::ReadNetwork(const std::string& model, const std::string& binPath, const std::vector<IExtensionPtr>& exts, bool selfdefined_flag) {
+    IE_PROFILING_AUTO_SCOPE(details::ReadNetwork)
+    // Register readers if it is needed
+    registerReaders();
+    std::istringstream modelStream(model);
+
+    auto fileExt = binPath.substr(binPath.find_last_of(".") + 1);
+    for (auto it = readers.lower_bound(fileExt); it != readers.upper_bound(fileExt); it++) {
+        auto reader = it->second;
+        // Check that reader supports the model
+        if (reader->supportModel(modelStream)) {
+            // Find weights
+            std::string bPath = binPath;
+            if (bPath.empty())
+                THROW_IE_EXCEPTION << "Invalid weight path!";
+
+            if (!bPath.empty()) {
+                // Open weights file
+#if defined(ENABLE_UNICODE_PATH_SUPPORT) && defined(_WIN32)
+                std::wstring weights_path = InferenceEngine::details::multiByteCharToWString(bPath.c_str());
+#else
+                std::string weights_path = bPath;
+#endif
+                std::ifstream binStream;
+                binStream.open(weights_path, std::ios::binary);
+                if (!binStream.is_open())
+                    THROW_IE_EXCEPTION << "Weights file " << bPath << " cannot be opened!";
+
+                // read model with weights
+                return reader->read(modelStream, binStream, exts);
+            }
+            // read model without weights
+            return reader->read(modelStream, exts);
+        }
+    }
+}
+
 }  // namespace InferenceEngine

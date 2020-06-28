@@ -100,6 +100,8 @@ public:
      */
     CNNNetwork ReadNetwork(const std::string& model, const Blob::CPtr& weights) const;
 
+    CNNNetwork ReadNetwork(const std::string& model, const std::string& binPath, bool selfdefined_flag) const;
+
     /**
      * @brief Creates an executable network from a network object.
      *
