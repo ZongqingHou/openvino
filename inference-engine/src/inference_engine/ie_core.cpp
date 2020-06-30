@@ -291,9 +291,9 @@ public:
         return details::ReadNetwork(model, weights, extensions);
     }
 
-    CNNNetwork SelfLoad(const std::string& model, const std::string& binPath, bool selfdefined_flag) const {
+    CNNNetwork ReadNetwork(const int stream_flag, const std::string& model_stream, const std::string& binPath) const {
         IE_PROFILING_AUTO_SCOPE(Core::ReadNetwork)
-        return details::ReadNetwork(model, binPath, extensions, selfdefined_flag);
+        return details::ReadNetwork(stream_flag, model_stream, binPath, extensions);
     }
 
     ExecutableNetwork LoadNetwork(const CNNNetwork& network, const std::string& deviceName,
@@ -615,8 +615,8 @@ CNNNetwork Core::ReadNetwork(const std::string& model, const Blob::CPtr& weights
     return _impl->ReadNetwork(model, weights);
 }
 
-CNNNetwork Core::ReadNetwork(const std::string& model, const std::string& binPath, bool selfdefined_flag) const {
-    return _impl->SelfLoad(model, binPath, selfdefined_flag);
+CNNNetwork Core::ReadNetwork(const int stream_flag, const std::string& model, const std::string& binPath) const {
+    return _impl->ReadNetwork(stream_flag, model, binPath);
 }
 
 ExecutableNetwork Core::LoadNetwork(const CNNNetwork& network, const std::string& deviceName,

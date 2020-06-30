@@ -209,14 +209,13 @@ CNNNetwork details::ReadNetwork(const std::string& model, const Blob::CPtr& weig
     THROW_IE_EXCEPTION << "Unknown model format! Cannot find reader for the model and read it. Please check that reader library exists in your PATH.";
 }
 
-CNNNetwork details::ReadNetwork(const std::string& model, const std::string& binPath, const std::vector<IExtensionPtr>& exts, bool selfdefined_flag) {
+CNNNetwork details::ReadNetwork(const int stream_flag, const std::string& model_stream, const std::string& binPath, const std::vector<IExtensionPtr>& exts) {
     IE_PROFILING_AUTO_SCOPE(details::ReadNetwork)
     // Register readers if it is needed
     registerReaders();
-    std::istringstream modelStream(model);
+    std::istringstream modelStream(model_stream);
 
-    auto fileExt = binPath.substr(binPath.find_last_of(".") + 1);
-    for (auto it = readers.lower_bound(fileExt); it != readers.upper_bound(fileExt); it++) {
+    for (auto it = readers.lower_bound("xml"); it != readers.upper_bound("xml"); it++) {
         auto reader = it->second;
         // Check that reader supports the model
         if (reader->supportModel(modelStream)) {
